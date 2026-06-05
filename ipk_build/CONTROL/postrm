@@ -1,0 +1,23 @@
+#!/bin/sh
+# =======================================================================
+# ✨ GitHub 嵌套花束自选更新器 - 卸载后/升级后扫尾脚本 (postrm)
+# =======================================================================
+
+echo "正在清理 GitHub 嵌套花束自选更新器的残留文件..."
+
+# 1. 彻底切断和抹除插件的源码主目录（防止任何残留的 .pyc 或缓存导致文件夹删不掉）
+if [ -d "/usr/lib/enigma2/python/Plugins/Extensions/GitHubBouquet" ]; then
+    rm -rf -- /usr/lib/enigma2/python/Plugins/Extensions/GitHubBouquet >/dev/null 2>&1
+fi
+
+# 2. 安全清理本地生成的“勾选记忆”和“大小账本”配置文件
+#    如果不希望用户卸载后再安装时丢失之前的勾选习惯，可以把下面两行 touch/rm 删掉。
+#    如果追求极致干净，就保留它们，让卸载一尘不染：
+rm -f -- /etc/enigma2/github_bouquet_checkbox.conf >/dev/null 2>&1
+rm -f -- /etc/enigma2/github_bouquet_sizes.conf >/dev/null 2>&1
+
+# 3. 提示用户清理结束
+echo ">>> 插件及其生成的所有本地配置文件已成功彻底抹除！"
+echo ""
+
+exit 0
