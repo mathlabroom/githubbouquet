@@ -17,9 +17,11 @@ jobs:
       - name: 🛠️ 组装并清洗换行符 (防 126 错误)
         run: |
           mkdir -p ipk/CONTROL ipk/usr
+          # 精准对齐你仓库里的 ipk_build 路径
           cp -r ipk_build/CONTROL/* ipk/CONTROL/
           cp -r ipk_build/usr/* ipk/usr/
           
+          # 强行把 Windows 的 CRLF 转换为 Linux 的 LF，彻底杜绝 bad interpreter 报错
           sed -i 's/\r$//' ipk/CONTROL/postinst || true
           chmod 755 ipk/CONTROL/postinst || true
 
