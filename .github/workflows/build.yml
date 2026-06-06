@@ -26,7 +26,6 @@ jobs:
       - name: 🏷️ 动态提取 control 文件中的真实版本号
         id: get_version
         run: |
-          # 用 python 自动抓取 Version 行，去掉空格，存入环境变量
           VERSION=$(python3 -c "
           for line in open('ipk_build/CONTROL/control'):
               if line.startswith('Version:'):
@@ -43,7 +42,7 @@ jobs:
           tar -czf ../data.tar.gz usr
           echo "2.0" > ../debian-binary
           cd ..
-          # ✨ 这里的 $VERSION 会自动变成比如 4.0.8 或者 4.0.9
+          # ✨ 依旧把包生成在当前执行目录下
           ar -crv "enigma2-plugin-extensions-githubbouquet_${{ env.VERSION }}_all.ipk" debian-binary control.tar.gz data.tar.gz
 
       - name: 💾 自动清理旧 IPK 并把新 IPK 推送到代码仓库
@@ -51,12 +50,12 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 清理掉仓库根目录下所有旧的 .ipk 文件，防止越攒越多
+          # 1. 先清理掉仓库根目录下所有旧的 .ipk 文件
           rm -f enigma2-plugin-extensions-githubbouquet_*.ipk
           
-          # 把刚生成的带精准版本号的 ipk 复制到根目录准备提交
-          cp "enigma2-plugin-extensions-githubbouquet_${{ env.VERSION }}_all.ipk" ./
+          # 2. ✨ 精准把上一步生成的 ipk 文件拉到根目录准备推送（此时它就在当前目录下）
+          git add "enigma2-plugin-extensions-githubbouquet_${{ env.VERSION }}_all.ipk"
           
-          git add enigma2-plugin-extensions-githubbouquet_*.ipk
+          # 3. 提交并推回仓库
           git commit -m "🤖 Actions 全自动构建: 更新动态版本 ${{ env.VERSION }} IPK 安装包" || echo "没有变化，跳过提交"
           git push origin main
